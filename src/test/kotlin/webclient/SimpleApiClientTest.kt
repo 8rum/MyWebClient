@@ -5,9 +5,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
+import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -21,9 +23,11 @@ internal class SimpleApiClientTest {
     @Autowired
     private val webTestClient: WebTestClient? = null
 
-    @Autowired
-    @Qualifier("defaultWebClientJetty")
-    private val defaultWebClient: WebClient? = null
+    private val webClientDefaultConfiguration = WebClientDefaultConfiguration()
+    private var webClientGoRestConfiguration: WebClientGoRestConfiguration? = null
+
+    @Value("\${go_rest_users_host}") private val goRestUsersHost: String = ""
+    @Value("\${go_rest_get_users}") private val goRestGetUsers: String = ""
 
 //    @InjectMocks
     private var simpleApiClient: SimpleApiClient? = null
@@ -31,7 +35,8 @@ internal class SimpleApiClientTest {
     @BeforeEach
     fun init() {
         MockitoAnnotations.initMocks(this)
-        simpleApiClient = SimpleApiClient(defaultWebClient!!)
+        val webClientGoRestConfiguration = WebClientGoRestConfiguration(webClientDefaultConfiguration, goRestUsersHost)
+        simpleApiClient = SimpleApiClient(webClientGoRestConfiguration.webClientGoRest(), goRestGetUsers)
     }
 
     @Test
